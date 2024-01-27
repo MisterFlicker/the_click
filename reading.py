@@ -5,10 +5,9 @@ from datetime import datetime
 import time, json
 
 
-def play_it(data):
+def play_it(data, loop_status):
     mouse = Controller()
     previous_time = 0
-    x = 0
     with open('mouse_button.txt') as g:
         mouse_button = g.read()
 
@@ -23,24 +22,41 @@ def play_it(data):
     k_listener = keyboard.Listener(on_release=on_release)
     k_listener.start()
 
-    for date, position in data.items():
-        if k_listener.is_alive():
-            if x+1 == len(data):
+    if loop_status:
+        while True:
+            if k_listener.is_alive():
+                for date, position in data.items():
+                    if k_listener.is_alive():
+                        date = datetime.strptime(date, "%m/%d/%Y, %H:%M:%S.%f")
+
+                        if previous_time != 0 and previous_time < date:
+                            time.sleep((date - previous_time).total_seconds())
+                        mouse.position = position
+                        mouse.press(Button[mouse_button])
+                        mouse.release(Button[mouse_button])
+                        previous_time = date
+                    else:
+                        break
+            else:
                 break
-            date = datetime.strptime(date, "%m/%d/%Y, %H:%M:%S.%f")
+    else:
+        for date, position in data.items():
+            if k_listener.is_alive():
+                date = datetime.strptime(date, "%m/%d/%Y, %H:%M:%S.%f")
 
-            if previous_time != 0:
-                time.sleep((date - previous_time).total_seconds())
-            mouse.position = position
-            mouse.press(Button[mouse_button])
-            mouse.release(Button[mouse_button])
-            previous_time = date
-            x += 1
-        else:
-            break
+                if previous_time != 0:
+                    time.sleep((date - previous_time).total_seconds())
+                mouse.position = position
+                mouse.press(Button[mouse_button])
+                mouse.release(Button[mouse_button])
+                previous_time = date
+            else:
+                break
 
 
-def opening(path):
+
+
+def opening(path, loop_status):
     with open(f'{path}', 'r') as f:
         data = json.load(f)
-        play_it(data)
+        play_it(data, loop_status)

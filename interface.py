@@ -31,7 +31,8 @@ layout = [[sg.Menu(menu_def, )],
           [sg.Text('')],
           [sg.Text(f'Current mouse button: {mouse_button}', key='-MOUSE-')],
           [sg.Text('Choose mouse button to play recorded clicks:')],
-          [sg.Listbox(choices, size=(10, len(choices)), key='-BUTTON-', enable_events=True)]]
+          [sg.Listbox(choices, size=(10, len(choices)), key='-BUTTON-', enable_events=True)],
+          [sg.Checkbox('Loop the playing sequnece', key='-INF-')]]
 
 
 window = sg.Window('The Click', layout, auto_size_text=True, auto_size_buttons=True)
@@ -56,7 +57,7 @@ while True:
     if event == 'Play recorded clicks':
         filepath = filedialog.askopenfilename()
         if filepath:
-            opening(filepath)
+            opening(filepath, values['-INF-'])
         else:
             continue
 
